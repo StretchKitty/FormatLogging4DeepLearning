@@ -1,4 +1,4 @@
-```markdown
+
 # Logger Module README
 
 ## Overview
