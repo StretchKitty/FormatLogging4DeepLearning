@@ -25,16 +25,16 @@ When initialized, the LoggerFormatter will:
 - Automatically save the source file (Python script or Jupyter notebook)
 - Print initialization details
 
-### For Jupyter Notebook Users
+#### For Jupyter Notebook Users
 
 **Important**: The logger saves the notebook file from disk, not from memory. To ensure the latest version is saved:
 
-1. **Manual Save Before Running**:
-   ```python
-   # Step 1: Save your notebook (Ctrl+S or Cmd+S)
-   # Step 2: Run your code
-   logger = LoggerFormatter(project_name="my_experiment")
-   ```
+**Manual Save Before Running**:
+```python
+# Step 1: Save your notebook (Ctrl+S or Cmd+S)
+# Step 2: Run your code
+logger = LoggerFormatter(project_name="my_experiment")
+```
    
 ## Core Functions
 
