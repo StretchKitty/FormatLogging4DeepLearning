@@ -36,8 +36,8 @@ class LoggerFormtter:
         """
         创建带时间戳的日志目录
         """
-        timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        self.log_dir = self.base_path / f"{timestamp}-{self.project_name}"
+        self.timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        self.log_dir = self.base_path / f"{self.timestamp}-{self.project_name}"
         self.log_dir.mkdir(exist_ok=True)
         
         print(f"Logger initialized with:")
@@ -60,15 +60,31 @@ class LoggerFormtter:
                 except:
                     print("Running in Jupyter but cannot save notebook file (ipynbname not available)")
             else:
+                # 获取调用栈，向上查找直到找到非Logger.py的文件
                 frame = inspect.currentframe()
-                if frame and frame.f_back and frame.f_back.f_code.co_filename:
-                    source_file = Path(frame.f_back.f_code.co_filename)
-                    if source_file.exists() and source_file.suffix == '.py':
-                        dest_path = self.log_dir / source_file.name
-                        shutil.copy2(source_file, dest_path)
-                        print(f"Python file saved to: {dest_path}")
+                caller_file = None
+                
+                # 遍历调用栈
+                while frame:
+                    filename = frame.f_code.co_filename
+                    if filename and not filename.endswith('Logger.py'):
+                        # 找到第一个不是Logger.py的文件
+                        source_file = Path(filename)
+                        if source_file.exists() and source_file.suffix == '.py':
+                            caller_file = source_file
+                            break
+                    frame = frame.f_back
+                
+                if caller_file:
+                    dest_path = self.log_dir / caller_file.name
+                    shutil.copy2(caller_file, dest_path)
+                    print(f"Python file saved to: {dest_path}")
+                else:
+                    print("Could not determine source file to save")
+                    
         except Exception as e:
             print(f"Could not save source file: {e}")
+
     
     def seed_everything(self, seed=42):
         """
@@ -118,6 +134,7 @@ class LoggerFormtter:
             if not fig_name.endswith(('.png', '.jpg', '.jpeg', '.pdf', '.svg')):
                 fig_name += '.png'
             
+            fig_name = f"{self.timestamp}-{self.project_name}-" + fig_name
             save_path = self.log_dir / fig_name
             plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
             print(f"Figure saved to: {save_path}")
